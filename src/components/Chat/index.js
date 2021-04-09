@@ -1,9 +1,28 @@
+import React from 'react'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 import  StarBorderOutlinedIcon from '@material-ui/icons/StarBorderOutlined'
-import React from 'react'
+import { useSelector } from 'react-redux'
+import { selectRoomId } from '../../features/appSlice'
 import styled from 'styled-components'
+import ChatImput from '../../components/ChatImput'
+import { useCollection, useDocument } from 'react-firebase-hooks/firestore'
+import { db } from '../../firebase'
 
 function Chat() {
+  const roomId = useSelector(selectRoomId)
+  const [roomsDetails] = useDocument(
+    roomId &&
+    db.collection('rooms').doc(roomId)
+  )
+  const [roomMessages] = useCollection (
+    roomId &&
+    db
+      .collection('rooms')
+      .doc(roomId)
+      .collection('messages')
+      .orderBy('timestamp', 'asc')
+  )
+
   return (
     <ChatContainer>
       <>
@@ -21,9 +40,12 @@ function Chat() {
             </p>
           </HeaderRight>
         </Header>
-        <ChatMessages>
+        <ChatMessages></ChatMessages>
+        <ChatImput>
+          channelName={roomsDetails?.data().name}
+          channelId={roomId}
+        </ChatImput>
 
-        </ChatMessages>
       </>
     </ChatContainer>
   )
