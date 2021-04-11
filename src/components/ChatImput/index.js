@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { Button } from '@material-ui/core'
 import styled from 'styled-components'
-import { db } from '../../firebase'
+import { auth, db } from '../../firebase'
 import firebase from 'firebase'
+import { useAuthState } from 'react-firebase-hooks/auth'
 
 
 function ChatImput({ channelName, channelId, chatRef }) {
   const [input, setInput] = useState('')
+  const [user] = useAuthState(auth)
 
   const sendMessage = (e) => {
     e.preventDefault() // Prevents refresh
@@ -18,8 +20,8 @@ function ChatImput({ channelName, channelId, chatRef }) {
     db.collection('rooms').doc(channelId).collection('messages').add({
       message: input,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      user: 'Luis',
-      userImage: 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png',
+      user: user.displayName,
+      userImage: user.photoURL,
     })
 
     chatRef.current.scrollIntoView({
