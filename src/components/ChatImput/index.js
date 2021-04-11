@@ -5,7 +5,7 @@ import { db } from '../../firebase'
 import firebase from 'firebase'
 
 
-function ChatImput({ channelName, channelId }) {
+function ChatImput({ channelName, channelId, chatRef }) {
   const [input, setInput] = useState('')
 
   const sendMessage = (e) => {
@@ -19,7 +19,11 @@ function ChatImput({ channelName, channelId }) {
       message: input,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       user: 'Luis',
-      userImage: 'https://static.wikia.nocookie.net/naruto/images/f/fd/Sasuke_Uchiha_Parte_III_Anime.png/revision/latest?cb=20161210224058&path-prefix=es',
+      userImage: 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png',
+    })
+
+    chatRef.current.scrollIntoView({
+      behavior: 'smooth',
     })
 
     setInput('')

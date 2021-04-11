@@ -1,20 +1,22 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 import  StarBorderOutlinedIcon from '@material-ui/icons/StarBorderOutlined'
 import { useSelector } from 'react-redux'
 import { selectRoomId } from '../../features/appSlice'
 import styled from 'styled-components'
 import ChatImput from '../../components/ChatImput'
+import Message from '../../components/Message'
 import { useCollection, useDocument } from 'react-firebase-hooks/firestore'
 import { db } from '../../firebase'
 
 function Chat() {
+  const chatRef = useRef(null)
   const roomId = useSelector(selectRoomId)
   const [roomsDetails] = useDocument(
     roomId &&
     db.collection('rooms').doc(roomId)
   )
-  const [roomMessages] = useCollection (
+  const [roomMessages, loading] = useCollection (
     roomId &&
     db
       .collection('rooms')
@@ -23,35 +25,64 @@ function Chat() {
       .orderBy('timestamp', 'asc')
   )
 
+  useEffect(() => {
+    chatRef?.current?.scrollIntoView({
+      behavior: 'smooth',
+    })
+  }, [roomId, loading])
+
   return (
     <ChatContainer>
-      <>
-        <Header>
-          <HeaderLeft>
-            <h4>
-              <strong>#Room-name</strong>
-            </h4>
-            <StarBorderOutlinedIcon />
-          </HeaderLeft>
+      {roomsDetails && roomMessages && (
+        
+        <>
+          <Header>
+            <HeaderLeft>
+              <h4>
+                <strong>#Room-name</strong>
+              </h4>
+              <StarBorderOutlinedIcon />
+            </HeaderLeft>
 
-          <HeaderRight>
-            <p>
-              <InfoOutlinedIcon /> Details
-            </p>
-          </HeaderRight>
-        </Header>
-        <ChatMessages></ChatMessages>
-        <ChatImput>
-          channelName={roomsDetails?.data().name}
-          channelId={roomId}
-        </ChatImput>
+            <HeaderRight>
+              <p>
+                <InfoOutlinedIcon /> Details
+              </p>
+            </HeaderRight>
+          </Header>
+          <ChatMessages>
+            {roomMessages?.docs.map(doc => {
+              const { message, timestamp, user, userImage } = doc.data()
 
-      </>
+              return (
+                <Message
+                  key={doc.id}
+                  message={message}
+                  user={user}
+                  userImage={userImage}
+                  timestamp={timestamp}
+                />
+              )
+            })}
+            <ChatBottom ref={chatRef}/>
+
+          </ChatMessages>
+          <ChatImput
+            chatRef={chatRef}
+            channelName={roomsDetails?.data().name}
+            channelId={roomId}
+          />
+        </>
+      )}
     </ChatContainer>
   )
 }
 
 export default Chat
+
+const ChatBottom = styled.div `
+  padding-bottom: 200px;
+`
 
 const ChatMessages = styled.div ``
 
