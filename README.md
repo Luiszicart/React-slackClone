@@ -1,3 +1,5 @@
+Demo: https://slack-clone-16d54.web.app/
+
 ## Content
 - [Content](#content)
 - [General information](#general-information)
